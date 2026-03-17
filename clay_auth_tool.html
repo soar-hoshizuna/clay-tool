@@ -52,6 +52,8 @@ header{background:#fff;padding:16px 18px 0;border-bottom:0.5px solid var(--bd);p
 .header-logo-tag{font-size:10px;letter-spacing:.1em;color:var(--text3)}
 .header-meta{display:flex;align-items:center;justify-content:space-between;padding-bottom:8px}
 .user-email{font-size:10px;color:var(--text3)}
+.header-right{display:flex;align-items:center;gap:8px}
+.history-btn{font-size:10px;color:var(--purple);background:var(--purple-bg);border:0.5px solid var(--purple);border-radius:4px;padding:3px 10px;cursor:pointer;font-family:var(--sans)}
 .logout-btn{font-size:10px;color:var(--text3);background:none;border:0.5px solid var(--bd2);border-radius:4px;padding:3px 10px;cursor:pointer;font-family:var(--sans)}
 .progress-bar{height:2px;background:var(--bd);overflow:hidden}
 .progress-fill{height:100%;background:var(--purple);border-radius:1px;transition:width .3s ease;width:0}
@@ -117,7 +119,6 @@ header{background:#fff;padding:16px 18px 0;border-bottom:0.5px solid var(--bd);p
 .therapist-section{margin:14px 14px 0;border-radius:14px;border:0.5px solid var(--bd);background:#fff;overflow:hidden}
 .therapist-head{padding:11px 15px;border-bottom:0.5px solid var(--bd);background:var(--bg2)}
 .therapist-head-title{font-family:var(--serif);font-size:15px;font-weight:400;color:var(--text);letter-spacing:.05em}
-.therapist-head-sub{font-size:11px;color:var(--text3);margin-top:2px}
 .therapist-body{padding:13px 15px;display:flex;flex-direction:column;gap:11px}
 .t-field{display:flex;flex-direction:column;gap:5px}
 .t-label{font-size:11px;color:var(--text3);letter-spacing:.06em;font-weight:500}
@@ -139,6 +140,31 @@ header{background:#fff;padding:16px 18px 0;border-bottom:0.5px solid var(--bd);p
 .pdf-head-title{font-family:var(--serif);font-size:15px;font-weight:400;color:var(--text);letter-spacing:.05em}
 .pdf-body{padding:14px 15px}
 
+/* ===== 履歴画面 ===== */
+#history-screen{display:none;min-height:100vh}
+.history-header{background:#fff;padding:14px 16px;border-bottom:0.5px solid var(--bd);display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:20;box-shadow:0 1px 8px rgba(0,0,0,0.04)}
+.history-back{font-size:12px;color:var(--purple);cursor:pointer;background:none;border:none;font-family:var(--sans);padding:4px 8px;border-radius:6px}
+.history-title{font-family:var(--serif);font-size:17px;font-weight:400;letter-spacing:.08em;color:var(--text);flex:1}
+.history-body{padding:14px}
+.history-filter{margin-bottom:14px;display:flex;gap:8px;align-items:center}
+.history-filter-label{font-size:11px;color:var(--text3)}
+.history-search{flex:1;padding:8px 12px;border-radius:var(--rs);border:0.5px solid var(--bd2);background:var(--bg);font-size:13px;color:var(--text);font-family:var(--sans);outline:none}
+.history-search:focus{border-color:var(--purple)}
+.history-loading{text-align:center;padding:40px;font-size:13px;color:var(--text3)}
+.history-empty{text-align:center;padding:40px;font-size:13px;color:var(--text3);line-height:2}
+.history-list{display:flex;flex-direction:column;gap:10px}
+.history-card{background:#fff;border:0.5px solid var(--bd);border-radius:12px;overflow:hidden}
+.history-card-head{padding:10px 13px;background:var(--bg2);display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
+.history-card-name{font-size:14px;font-weight:500;color:var(--text)}
+.history-card-date{font-size:10px;color:var(--text3);white-space:nowrap;margin-top:2px}
+.history-card-body{padding:10px 13px;display:flex;flex-direction:column;gap:6px}
+.history-row{display:flex;gap:6px;align-items:flex-start}
+.history-row-label{font-size:10px;color:var(--text3);min-width:72px;padding-top:1px;letter-spacing:.04em;font-weight:500}
+.history-row-val{font-size:12px;color:var(--text2);line-height:1.6;flex:1}
+.history-clay-badges{display:flex;flex-wrap:wrap;gap:4px}
+.history-clay-badge{font-size:10px;padding:2px 8px;border-radius:20px;font-weight:500}
+.history-therapist-tag{font-size:10px;padding:2px 8px;border-radius:20px;background:var(--purple-bg);color:var(--purple);border:0.5px solid var(--purple);display:inline-block;margin-bottom:2px}
+.history-count{font-size:11px;color:var(--text3);margin-bottom:10px}
 footer{margin-top:30px;padding:0 14px;text-align:center;font-size:10px;color:var(--text3);line-height:2;letter-spacing:.04em}
 
 @media print{
@@ -171,6 +197,22 @@ footer{margin-top:30px;padding:0 14px;text-align:center;font-size:10px;color:var
 
 <div class="watermark" id="watermark"></div>
 
+<!-- 履歴画面 -->
+<div id="history-screen">
+  <div class="history-header">
+    <button class="history-back" onclick="closeHistory()">← 戻る</button>
+    <div class="history-title">施術履歴</div>
+  </div>
+  <div class="history-body">
+    <div class="history-filter">
+      <span class="history-filter-label">検索：</span>
+      <input class="history-search" id="history-search" type="text" placeholder="顧客名・クレイ名で絞り込み" oninput="filterHistory()">
+    </div>
+    <div id="history-count" class="history-count"></div>
+    <div id="history-content" class="history-loading">読み込み中...</div>
+  </div>
+</div>
+
 <div id="app">
   <div class="warn-banner">導入サロン限定ツール｜無断転用・共有禁止｜hoshizuna clay</div>
   <header>
@@ -180,7 +222,10 @@ footer{margin-top:30px;padding:0 14px;text-align:center;font-size:10px;color:var
     </div>
     <div class="header-meta">
       <span class="user-email" id="user-email-display"></span>
-      <button class="logout-btn" onclick="doLogout()">ログアウト</button>
+      <div class="header-right">
+        <button class="history-btn" onclick="openHistory()">📋 履歴</button>
+        <button class="logout-btn" onclick="doLogout()">ログアウト</button>
+      </div>
     </div>
     <div class="progress-bar"><div class="progress-fill" id="prog"></div></div>
   </header>
@@ -335,7 +380,6 @@ footer{margin-top:30px;padding:0 14px;text-align:center;font-size:10px;color:var
   <div class="therapist-section" id="therapist-section" style="display:none">
     <div class="therapist-head">
       <div class="therapist-head-title">施術者記録</div>
-      <div class="therapist-head-sub">入力内容はMakiさんのスプレッドシートに自動保存されます</div>
     </div>
     <div class="therapist-body">
       <div class="t-field">
@@ -358,7 +402,7 @@ footer{margin-top:30px;padding:0 14px;text-align:center;font-size:10px;color:var
         <label class="t-label">お客様へのホームケアアドバイス（PDF用）</label>
         <textarea class="t-input" id="homecare-advice" placeholder="例：就寝前のクレイ足湯がおすすめです。週2〜3回続けてみてください。"></textarea>
       </div>
-      <div id="auto-save-msg" class="auto-saved">✅ スプレッドシートに保存しました</div>
+      <div id="auto-save-msg" class="auto-saved">✅ 保存しました</div>
     </div>
   </div>
 
@@ -382,7 +426,9 @@ footer{margin-top:30px;padding:0 14px;text-align:center;font-size:10px;color:var
 <script>
 const GAS_URL='https://script.google.com/macros/s/AKfycbxzercYoiWDgVueuvdsYtJVE9vO_j9lrli8ixx-DgxcRrJkFDivRj8HDDw4vhsWltI7/exec';
 const STORAGE_KEY='hoshizuna_auth_v2';
+const ADMIN_EMAIL='soar.nailsalon.313@gmail.com';
 let autoSaveTimer=null,lastSavedKey='',currentSorted=[];
+let allHistoryData=[];
 
 window.addEventListener('DOMContentLoaded',()=>{
   const saved=sessionStorage.getItem(STORAGE_KEY);
@@ -425,6 +471,100 @@ function buildWatermark(email){
   }
 }
 
+// ===== 履歴機能 =====
+async function openHistory(){
+  document.getElementById('app').style.display='none';
+  document.getElementById('history-screen').style.display='block';
+  document.getElementById('history-search').value='';
+  document.getElementById('history-content').innerHTML='<div class="history-loading">読み込み中...</div>';
+  document.getElementById('history-count').textContent='';
+
+  const email=sessionStorage.getItem(STORAGE_KEY)||'';
+  const isAdmin=email.toLowerCase()===ADMIN_EMAIL.toLowerCase();
+
+  try{
+    const res=await fetch(`${GAS_URL}?action=getHistory&email=${encodeURIComponent(email)}&admin=${isAdmin}`);
+    const data=await res.json();
+    if(data.records&&data.records.length>0){
+      allHistoryData=data.records;
+      renderHistory(allHistoryData);
+    } else {
+      allHistoryData=[];
+      document.getElementById('history-content').innerHTML='<div class="history-empty">まだ施術記録がありません</div>';
+    }
+  }catch(e){
+    document.getElementById('history-content').innerHTML='<div class="history-empty">読み込みに失敗しました。<br>しばらくしてから再度お試しください。</div>';
+  }
+}
+
+function closeHistory(){
+  document.getElementById('history-screen').style.display='none';
+  document.getElementById('app').style.display='block';
+}
+
+function filterHistory(){
+  const q=document.getElementById('history-search').value.trim().toLowerCase();
+  if(!q){renderHistory(allHistoryData);return;}
+  const filtered=allHistoryData.filter(r=>
+    (r.clientName||'').toLowerCase().includes(q)||
+    (r.selectedClay||'').toLowerCase().includes(q)||
+    (r.symptoms||'').toLowerCase().includes(q)
+  );
+  renderHistory(filtered);
+}
+
+function renderHistory(records){
+  const email=sessionStorage.getItem(STORAGE_KEY)||'';
+  const isAdmin=email.toLowerCase()===ADMIN_EMAIL.toLowerCase();
+  const countEl=document.getElementById('history-count');
+  countEl.textContent=records.length+'件';
+
+  if(records.length===0){
+    document.getElementById('history-content').innerHTML='<div class="history-empty">該当する記録がありません</div>';
+    return;
+  }
+
+  const CLAY_COLORS={
+    'White Clay':'#ACACAA','Green Clay':'#7AB88A','Purple Clay':'#9070B8',
+    'Yellow Clay':'#D4B858','Red Clay':'#D47A6A','Blue Clay':'#6AAED4'
+  };
+  const CLAY_BG={
+    'White Clay':'#F2F2EF','Green Clay':'#E8F4EC','Purple Clay':'#F2EDF8',
+    'Yellow Clay':'#FBF4E0','Red Clay':'#FAF0EE','Blue Clay':'#E8F0F7'
+  };
+
+  const html=records.map(r=>{
+    const clays=(r.selectedClay||'').split('、').filter(Boolean);
+    const clayBadges=clays.map(c=>{
+      const col=CLAY_COLORS[c]||'#888';
+      const bg=CLAY_BG[c]||'#f5f5f5';
+      return`<span class="history-clay-badge" style="background:${bg};color:${col};border:0.5px solid ${col}">${c}</span>`;
+    }).join('');
+    const therapistTag=isAdmin&&r.therapistEmail?`<div><span class="history-therapist-tag">📋 ${r.therapistEmail}</span></div>`:'';
+    const rows=[
+      r.treatArea?`<div class="history-row"><span class="history-row-label">施術部位</span><span class="history-row-val">${r.treatArea}</span></div>`:'',
+      r.therapistNote?`<div class="history-row"><span class="history-row-label">体感・気づき</span><span class="history-row-val">${r.therapistNote}</span></div>`:'',
+      r.nextNote?`<div class="history-row"><span class="history-row-label">次回メモ</span><span class="history-row-val">${r.nextNote}</span></div>`:'',
+    ].filter(Boolean).join('');
+    return`<div class="history-card">
+      <div class="history-card-head">
+        <div>
+          <div class="history-card-name">${r.clientName||'（名前なし）'}</div>
+          ${therapistTag}
+        </div>
+        <div class="history-card-date">${r.timestamp||''}</div>
+      </div>
+      <div class="history-card-body">
+        <div class="history-row"><span class="history-row-label">クレイ</span><span class="history-row-val"><div class="history-clay-badges">${clayBadges}</div></span></div>
+        ${rows}
+      </div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('history-content').innerHTML=`<div class="history-list">${html}</div>`;
+}
+
+// ===== 既存ロジック =====
 const RULES={
   zutsuu_ketsuryuu:{Red:3,Yellow:2,areas:['首・肩パック（Yellow）','足湯（Red）','脊柱パック']},
   zutsuu_hensoku:{Green:2,Purple:2,areas:['こめかみパック','足湯','首パック']},
