@@ -441,7 +441,8 @@ footer{margin-top:32px;padding:0 16px;text-align:center;font-size:10px;color:var
 </div>
 
 <script>
-const GAS_URL = 'https://script.google.com/macros/s/AKfycbxzercYoiWDgVueuvdsYtJVE9vO_j9lrli8ixx-DgxcRrJkFDivRj8HDDw4vhsWltI7/exec';
+const GAS_AUTH_URL   = 'https://script.google.com/macros/s/AKfycbwjyX8Z6hQ2viMKKaR3uZfEC4Rzj1ag-EklS1ff_1FNadBIdhp2Zeg2ex0HObSUb915MA/exec';
+const GAS_RECORD_URL = 'https://script.google.com/macros/s/AKfycbxzercYoiWDgVueuvdsYtJVE9vO_j9lrli8ixx-DgxcRrJkFDivRj8HDDw4vhsWltI7/exec';
 const STORAGE_KEY = 'hoshizuna_auth_v2';
 
 window.addEventListener('DOMContentLoaded', () => {
@@ -456,7 +457,7 @@ async function doAuth() {
   const btn=document.getElementById('auth-btn'),txt=document.getElementById('btn-text'),spin=document.getElementById('spinner');
   btn.disabled=true; txt.style.display='none'; spin.style.display='block'; hideErr();
   try {
-    const res = await fetch(`${GAS_URL}?email=${encodeURIComponent(email)}`);
+    const res = await fetch(`${GAS_AUTH_URL}?email=${encodeURIComponent(email)}`);
     const data = await res.json();
     if (data.allowed) { sessionStorage.setItem(STORAGE_KEY, email); showApp(email); }
     else showErr('このメールアドレスは登録されていません。\nhoshizuna clay導入サロンのみご利用いただけます。');
@@ -808,7 +809,7 @@ async function sendToSheet(){
   sr.style.display='none';
 
   try{
-    await fetch(GAS_URL,{method:'POST',body:JSON.stringify(payload)});
+    await fetch(GAS_RECORD_URL,{method:'POST',body:JSON.stringify(payload)});
     sr.className='send-result ok';
     sr.textContent='✅ 記録を保存しました。Makiさんのスプレッドシートに反映されています。';
   }catch(e){
