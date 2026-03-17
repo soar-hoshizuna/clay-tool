@@ -402,7 +402,6 @@ footer{margin-top:30px;padding:0 14px;text-align:center;font-size:10px;color:var
         <label class="t-label">お客様へのホームケアアドバイス（PDF用）</label>
         <textarea class="t-input" id="homecare-advice" placeholder="例：就寝前のクレイ足湯がおすすめです。週2〜3回続けてみてください。"></textarea>
       </div>
-      <div id="auto-save-msg" class="auto-saved">✅ 保存しました</div>
     </div>
   </div>
 
@@ -411,7 +410,8 @@ footer{margin-top:30px;padding:0 14px;text-align:center;font-size:10px;color:var
     <button class="btn btn-accent" onclick="scrollToResult()">結果を見る</button>
   </div>
   <div class="actions" id="action-buttons2" style="display:none">
-    <button class="btn btn-purple btn-full" onclick="saveAndPrintPDF()">📄 お客様用PDF を出力</button>
+    <button class="btn btn-accent btn-full" onclick="saveRecord()">💾 施術記録を保存</button>
+    <button class="btn btn-purple btn-full" onclick="printPDFOnly()">📄 お客様用PDF を出力</button>
     <button class="btn btn-full" onclick="resetAll()">新しいお客様へ</button>
   </div>
 
@@ -434,9 +434,6 @@ window.addEventListener('DOMContentLoaded',()=>{
   const saved=sessionStorage.getItem(STORAGE_KEY);
   if(saved) showApp(saved);
   document.getElementById('email-input').addEventListener('keydown',e=>{if(e.key==='Enter') doAuth();});
-  ['client-name','treat-area','therapist-note','next-note','homecare-advice'].forEach(id=>{
-    document.getElementById(id).addEventListener('input',scheduleAutoSave);
-  });
 });
 
 async function doAuth(){
@@ -747,13 +744,10 @@ function render(){
   document.getElementById('therapist-section').style.display='block';
   document.getElementById('action-buttons').style.display='none';
   document.getElementById('action-buttons2').style.display='flex';
-  const saveKey=currentSorted.map(([n])=>n).join(',');
-  if(saveKey!==lastSavedKey){lastSavedKey=saveKey;autoSend(false);}
+  lastSavedKey=currentSorted.map(([n])=>n).join(',');
 }
 
-function scheduleAutoSave(){clearTimeout(autoSaveTimer);autoSaveTimer=setTimeout(()=>autoSend(true),2000);}
-
-async function autoSend(fromInput=false){
+async function autoSend(){
   const email=sessionStorage.getItem(STORAGE_KEY)||'不明';
   const payload={
     therapistEmail:email,
@@ -767,7 +761,6 @@ async function autoSend(fromInput=false){
   };
   try{
     await fetch(GAS_URL,{method:'POST',body:JSON.stringify(payload)});
-    if(fromInput){const msg=document.getElementById('auto-save-msg');msg.classList.add('show');setTimeout(()=>msg.classList.remove('show'),3000);}
   }catch(e){console.log('save error',e);}
 }
 
@@ -783,8 +776,16 @@ function resetAll(){
 }
 function scrollToResult(){document.getElementById('result-wrap').scrollIntoView({behavior:'smooth',block:'start'});}
 
-function saveAndPrintPDF(){
-  autoSend(false);
+async function saveRecord(){
+  const btn=document.querySelector('[onclick="saveRecord()"]');
+  const origText=btn.textContent;
+  btn.textContent='保存中...';btn.disabled=true;
+  await autoSend();
+  btn.textContent='✅ 保存しました';
+  setTimeout(()=>{btn.textContent=origText;btn.disabled=false;},2500);
+}
+
+function printPDFOnly(){
   const clientName=document.getElementById('client-name').value||'お客様';
   const homecareAdvice=document.getElementById('homecare-advice').value||'';
   const selectedClays=currentSorted.map(([n])=>CLAY_INFO[n].name).join('、');
@@ -819,6 +820,7 @@ function saveAndPrintPDF(){
   document.getElementById('pdf-section').scrollIntoView({behavior:'smooth'});
   setTimeout(()=>window.print(),400);
 }
+
 </script>
 </body>
 </html>
