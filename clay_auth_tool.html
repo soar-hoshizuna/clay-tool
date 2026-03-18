@@ -229,6 +229,7 @@ footer{margin-top:30px;padding:0 14px;text-align:center;font-size:10px;color:var
       <span class="user-email" id="user-email-display"></span>
       <div class="header-right">
         <button class="history-btn" onclick="openHistory()">📋 履歴</button>
+        <button class="history-btn" style="background:#FFF4F2;color:#C06050;border-color:#C06050" onclick="clearAllChecks()">✕ クリア</button>
         <button class="logout-btn" onclick="doLogout()">ログアウト</button>
       </div>
     </div>
@@ -786,6 +787,8 @@ function render(){
 
 async function autoSend(){
   const email=sessionStorage.getItem(STORAGE_KEY)||'不明';
+  const now=new Date();
+  const timestamp=now.toLocaleDateString('ja-JP',{year:'numeric',month:'long',day:'numeric'})+' '+now.toLocaleTimeString('ja-JP',{hour:'2-digit',minute:'2-digit'});
   const payload={
     therapistEmail:email,
     clientName:document.getElementById('client-name').value||'未記入',
@@ -794,11 +797,24 @@ async function autoSend(){
     treatArea:document.getElementById('treat-area').value||'',
     therapistNote:document.getElementById('therapist-note').value||'',
     homecareAdvice:document.getElementById('homecare-advice').value||'',
-    nextNote:document.getElementById('next-note').value||''
+    nextNote:document.getElementById('next-note').value||'',
+    timestamp:timestamp
   };
   try{
     await fetch(GAS_URL,{method:'POST',body:JSON.stringify(payload)});
   }catch(e){console.log('save error',e);}
+}
+
+function clearAllChecks(){
+  checked.clear();
+  document.querySelectorAll('.check-item').forEach(el=>el.classList.remove('active'));
+  document.getElementById('therapist-section').style.display='none';
+  document.getElementById('pdf-section').style.display='none';
+  document.getElementById('action-buttons').style.display='flex';
+  document.getElementById('action-buttons2').style.display='none';
+  const existing=document.getElementById('pdf-btn-area');
+  if(existing) existing.remove();
+  updateProgress();render();
 }
 
 function resetAll(){
