@@ -173,6 +173,7 @@ footer{margin-top:30px;padding:0 14px;text-align:center;font-size:10px;color:var
   .warn-banner,.tabs,.actions,.therapist-section,.logout-btn,.progress-bar,.result-wrap,.panels,header{display:none!important}
   body{max-width:100%;padding:0}
   .pdf-section{display:block!important;margin:0;border:none;border-radius:0}
+  #pdf-dl-btn{display:none!important}
 }
 </style>
 </head>
@@ -529,7 +530,7 @@ function renderHistory(records){
   };
   const CLAY_BG={
     'White Clay':'#F2F2EF','Green Clay':'#E8F4EC','Purple Clay':'#F2EDF8',
-    'Yellow Clay':'#FBF4E0','Red Clay':'#FAF0EE','Blue Clay':'#E8F0F7'
+    'Yellow Clay':'#FBF4E0','Red Clay':'#FAF0EEF','Blue Clay':'#E8F0F7'
   };
 
   const currentEmail=(sessionStorage.getItem(STORAGE_KEY)||'').toLowerCase();
@@ -541,11 +542,15 @@ function renderHistory(records){
       return`<span class="history-clay-badge" style="background:${bg};color:${col};border:0.5px solid ${col}">${c}</span>`;
     }).join('');
     const therapistTag=isAdmin&&r.therapistEmail?`<div><span class="history-therapist-tag">📋 ${r.therapistEmail}</span></div>`:'';
+
+    // ★修正：症状を履歴に表示
     const rows=[
+      r.symptoms?`<div class="history-row"><span class="history-row-label">チェック症状</span><span class="history-row-val">${r.symptoms}</span></div>`:'',
       r.treatArea?`<div class="history-row"><span class="history-row-label">施術部位</span><span class="history-row-val">${r.treatArea}</span></div>`:'',
       r.therapistNote?`<div class="history-row"><span class="history-row-label">体感・気づき</span><span class="history-row-val">${r.therapistNote}</span></div>`:'',
       r.nextNote?`<div class="history-row"><span class="history-row-label">次回メモ</span><span class="history-row-val">${r.nextNote}</span></div>`:'',
     ].filter(Boolean).join('');
+
     const canDelete=isAdmin||(r.therapistEmail||'').toLowerCase()===currentEmail;
     const deleteBtn=canDelete?`<button class="history-delete-btn" onclick="deleteRecord(${r.rowIndex},this)" title="削除">🗑</button>`:'';
     return`<div class="history-card" id="hcard-${r.rowIndex}">
@@ -802,6 +807,8 @@ function resetAll(){
   document.getElementById('action-buttons').style.display='flex';
   document.getElementById('action-buttons2').style.display='none';
   ['client-name','treat-area','therapist-note','next-note','homecare-advice'].forEach(id=>document.getElementById(id).value='');
+  const existing=document.getElementById('pdf-dl-btn');
+  if(existing) existing.remove();
   updateProgress();render();
 }
 function scrollToResult(){document.getElementById('result-wrap').scrollIntoView({behavior:'smooth',block:'start'});}
@@ -827,7 +834,8 @@ function printPDFOnly(){
     homecareHTML=topClay.homecare.map(h=>`<div style="margin-bottom:10px;padding:9px 11px;background:#FAFAF8;border-radius:8px;border:0.5px solid #E8E8E4"><div style="font-size:11px;font-weight:500;color:#5A5A56;margin-bottom:3px">${h.icon} ${h.label}</div><div style="font-size:12px;color:#3A3A38;line-height:1.7">${h.text}</div></div>`).join('');
   }
   const adviceHTML=homecareAdvice?`<div style="margin-top:14px;padding:11px 13px;background:#F2EDF8;border-radius:8px;border:0.5px solid #C0A8E0"><div style="font-size:10px;letter-spacing:.1em;color:#6A4A90;margin-bottom:5px;font-weight:500">セラピストより</div><div style="font-size:13px;color:#3A3A38;line-height:1.8">${homecareAdvice}</div></div>`:'';
-  document.getElementById('pdf-body').innerHTML=`
+
+  const pdfContent=`
     <div style="text-align:center;margin-bottom:16px;padding-bottom:13px;border-bottom:0.5px solid #E0E0DA">
       <div style="font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:300;letter-spacing:.15em;color:#1E1E1C">HOSHIZUNA</div>
       <div style="font-size:10px;letter-spacing:.15em;color:#9A9A94;margin-top:3px">natural RE turn CLAY</div>
@@ -846,11 +854,44 @@ function printPDFOnly(){
       <div style="font-size:11px;color:#A84A38;line-height:1.7">クレイバス・足湯には自動循環・追い焚きを使用しないでください。作ったペーストは当日中に使い切ってください。金属・ステンレスの器具は使用しないでください。</div>
     </div>
     <div style="margin-top:16px;text-align:center;font-size:10px;color:#9A9A94;letter-spacing:.04em">hoshizuna clay — 100% Natural GMP認定／サロン専売品</div>`;
+
+  document.getElementById('pdf-body').innerHTML=pdfContent;
   document.getElementById('pdf-section').style.display='block';
   document.getElementById('pdf-section').scrollIntoView({behavior:'smooth'});
+
+  // ★修正：ダウンロードボタンを追加
+  const existing=document.getElementById('pdf-dl-btn');
+  if(existing) existing.remove();
+  const dlBtn=document.createElement('button');
+  dlBtn.id='pdf-dl-btn';
+  dlBtn.textContent='⬇️ HTMLでダウンロード（印刷→PDF保存可）';
+  dlBtn.style.cssText='display:block;width:calc(100% - 28px);margin:12px 14px 0;padding:11px 15px;background:#9070B8;color:#fff;border:none;border-radius:10px;font-size:13px;cursor:pointer;font-family:var(--sans);letter-spacing:.03em';
+  dlBtn.onclick=function(){
+    const fullHTML=`<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>HOSHIZUNA ホームケアご案内 — ${clientName} 様</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400&family=Noto+Sans+JP:wght@300;400&display=swap');
+body{font-family:'Noto Sans JP','Hiragino Sans',sans-serif;padding:32px 24px;max-width:520px;margin:0 auto;font-size:13px;line-height:1.7;color:#1E1E1C;background:#FAFAF8}
+</style>
+</head>
+<body>${pdfContent}</body>
+</html>`;
+    const blob=new Blob([fullHTML],{type:'text/html;charset=utf-8'});
+    const a=document.createElement('a');
+    const dateStr=new Date().toISOString().slice(0,10);
+    a.href=URL.createObjectURL(blob);
+    a.download=`hoshizuna_${clientName}_${dateStr}.html`;
+    a.click();
+    URL.revokeObjectURL(a.href);
+  };
+  document.getElementById('pdf-section').appendChild(dlBtn);
+
   setTimeout(()=>window.print(),400);
 }
-
 </script>
 </body>
 </html>
