@@ -859,36 +859,20 @@ function printPDFOnly(){
   document.getElementById('pdf-section').style.display='block';
   document.getElementById('pdf-section').scrollIntoView({behavior:'smooth'});
 
-  // ★修正：ダウンロードボタンを追加
+  // ★修正：PDF保存ボタン（iPhone対応）
   const existing=document.getElementById('pdf-dl-btn');
   if(existing) existing.remove();
   const dlBtn=document.createElement('button');
   dlBtn.id='pdf-dl-btn';
-  dlBtn.textContent='⬇️ HTMLでダウンロード（印刷→PDF保存可）';
-  dlBtn.style.cssText='display:block;width:calc(100% - 28px);margin:12px 14px 0;padding:11px 15px;background:#9070B8;color:#fff;border:none;border-radius:10px;font-size:13px;cursor:pointer;font-family:var(--sans);letter-spacing:.03em';
-  dlBtn.onclick=function(){
-    const fullHTML=`<!DOCTYPE html>
-<html lang="ja">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>HOSHIZUNA ホームケアご案内 — ${clientName} 様</title>
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400&family=Noto+Sans+JP:wght@300;400&display=swap');
-body{font-family:'Noto Sans JP','Hiragino Sans',sans-serif;padding:32px 24px;max-width:520px;margin:0 auto;font-size:13px;line-height:1.7;color:#1E1E1C;background:#FAFAF8}
-</style>
-</head>
-<body>${pdfContent}</body>
-</html>`;
-    const blob=new Blob([fullHTML],{type:'text/html;charset=utf-8'});
-    const a=document.createElement('a');
-    const dateStr=new Date().toISOString().slice(0,10);
-    a.href=URL.createObjectURL(blob);
-    a.download=`hoshizuna_${clientName}_${dateStr}.html`;
-    a.click();
-    URL.revokeObjectURL(a.href);
-  };
+  dlBtn.textContent='📥 PDFとして保存する';
+  dlBtn.style.cssText='display:block;width:calc(100% - 28px);margin:12px 14px 4px;padding:11px 15px;background:#9070B8;color:#fff;border:none;border-radius:10px;font-size:13px;cursor:pointer;font-family:var(--sans);letter-spacing:.03em';
+  dlBtn.onclick=function(){ window.print(); };
   document.getElementById('pdf-section').appendChild(dlBtn);
+
+  const hint=document.createElement('div');
+  hint.style.cssText='font-size:11px;color:#9A9A94;text-align:center;padding:0 14px 14px;line-height:1.8';
+  hint.innerHTML='📱 iPhoneの場合：印刷画面で <strong>2本指でピンチアウト</strong> するとPDFで保存できます';
+  document.getElementById('pdf-section').appendChild(hint);
 
   setTimeout(()=>window.print(),400);
 }
